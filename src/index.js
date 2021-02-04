@@ -1,5 +1,6 @@
 const placeholderSymbol = Symbol('placeholder')
 const predicateSymbol = Symbol('predicate')
+const typedSymbol = Symbol('typed')
 class NoMatchError extends Error {}
 
 // TODO: write some tests for arrays with odd list length and empty list.
@@ -12,6 +13,7 @@ function toPairs([a, b, ...rest], result = []) {
 
 module.exports = Object.assign(patroon, {
   patroon,
+  t: typed,
   _: placeholderSymbol,
   p: predicate,
   NoMatchError,
@@ -29,7 +31,22 @@ function patroon(...list) {
   }
 }
 
+function typed(constructor, matchObject) {
+  function typed(v) {
+    console.log(v)
+    return v instanceof constructor && matches(matchObject, v)
+  }
+
+  typed[typedSymbol] = true
+
+  return typed
+}
+
 function matches(a, b) {
+  if (a && a[typedSymbol]) {
+    return a(b)
+  }
+
   if (a && a[predicateSymbol]) {
     return a(b)
   }

@@ -3,6 +3,7 @@ const { check, gen } = require('tape-check')
 const {
   p, // predicate
   _, // placeholder,
+  t: typed,
   patroon,
   NoMatchError
 } = require('./index')
@@ -10,6 +11,26 @@ const {
 const simpleObject = {a: 1}
 const otherObject = {b: 1}
 const emptyObject = {}
+
+test('Ability to match on Type and values assigned to that type', t => {
+  class A {
+    constructor(value) {
+      this.value = value
+    }
+  }
+
+  class B {
+    constructor(value) {
+      this.value = value
+    }
+  }
+
+  patroon(
+    typed(B, {value: 20}), () => t.fail(),
+    typed(A, {value: 30}), () => t.fail(),
+    typed(A, {value: 20}), () => t.end()
+  )(new A(20))
+})
 
 test('Matches using an array pattern', t => {
   patroon(
