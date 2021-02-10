@@ -47,8 +47,7 @@ body{min-width:200px;max-width:850px;margin:0 auto;padding:30px;}.chapter-nav{fo
 <p>Patroon.js as an attempt to add pattern matching-ish functionality without
 introducing new syntax.
 </p>
-<p>This project uses <a href="https://github.com/zyedidia/Literate">literate programming</a> to generate all source code. Only
-the README.lit should be used to edit code.
+<p>This project uses <a href="https://github.com/zyedidia/Literate">literate programming</a> to generate all source code.
 </p>
 
 </div>
@@ -71,24 +70,30 @@ const simpleObject = {a: 1}
 const otherObject = {b: 1}
 const emptyObject = {}
 
-test('Ability to match on Type and values assigned to that type', t =&gt; {
-  class A {
-    constructor(value) {
-      this.value = value
-    }
-  }
+class A { }
 
-  class B {
-    constructor(value) {
-      this.value = value
-    }
-  }
+class B { }
 
+test('Matches on type', t =&gt; {
+  patroon(
+    typed(B), () =&gt; t.fail(),
+    typed(A), () =&gt; t.end()
+  )(new A())
+})
+
+test('Matches on type and values assigned to that type', t =&gt; {
   patroon(
     typed(B, {value: 20}), () =&gt; t.fail(),
     typed(A, {value: 30}), () =&gt; t.fail(),
     typed(A, {value: 20}), () =&gt; t.end()
-  )(new A(20))
+  )(Object.assign(new A(), {value: 20}))
+})
+
+test('Matches only when property exists', t =&gt; {
+  patroon(
+    {c: _}, () =&gt; t.fail(), // c is not defined
+    {a: _}, () =&gt; t.end(),
+  )({a: undefined})
 })
 
 test('Matches using an array pattern', t =&gt; {
@@ -191,8 +196,7 @@ function patroon(...list) {
 
 function typed(constructor, matchObject) {
   function typed(v) {
-    console.log(v)
-    return v instanceof constructor &amp;&amp; matches(matchObject, v)
+    return v instanceof constructor &amp;&amp; matches(matchObject || {}, v)
   }
 
   typed[typedSymbol] = true

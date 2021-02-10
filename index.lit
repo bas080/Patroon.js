@@ -5,10 +5,9 @@
 Patroon.js as an attempt to add pattern matching-ish functionality without
 introducing new syntax.
 
-This project uses [literate programming][1] to generate all source code. Only
-the README.lit should be used to edit code.
+This project uses [literate programming][1] to generate all source code.
 
-[1]: https://github.com/zyedidia/Literate
+[1]:https://github.com/zyedidia/Literate
 
 @s Specifications
 
@@ -27,24 +26,30 @@ const simpleObject = {a: 1}
 const otherObject = {b: 1}
 const emptyObject = {}
 
-test('Ability to match on Type and values assigned to that type', t => {
-  class A {
-    constructor(value) {
-      this.value = value
-    }
-  }
+class A { }
 
-  class B {
-    constructor(value) {
-      this.value = value
-    }
-  }
+class B { }
 
+test('Matches on type', t => {
+  patroon(
+    typed(B), () => t.fail(),
+    typed(A), () => t.end()
+  )(new A())
+})
+
+test('Matches on type and values assigned to that type', t => {
   patroon(
     typed(B, {value: 20}), () => t.fail(),
     typed(A, {value: 30}), () => t.fail(),
     typed(A, {value: 20}), () => t.end()
-  )(new A(20))
+  )(Object.assign(new A(), {value: 20}))
+})
+
+test('Matches only when property exists', t => {
+  patroon(
+    {c: _}, () => t.fail(), // c is not defined
+    {a: _}, () => t.end(),
+  )({a: undefined})
 })
 
 test('Matches using an array pattern', t => {
@@ -141,8 +146,7 @@ function patroon(...list) {
 
 function typed(constructor, matchObject) {
   function typed(v) {
-    console.log(v)
-    return v instanceof constructor && matches(matchObject, v)
+    return v instanceof constructor && matches(matchObject || {}, v)
   }
 
   typed[typedSymbol] = true

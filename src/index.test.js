@@ -12,24 +12,30 @@ const simpleObject = {a: 1}
 const otherObject = {b: 1}
 const emptyObject = {}
 
-test('Ability to match on Type and values assigned to that type', t => {
-  class A {
-    constructor(value) {
-      this.value = value
-    }
-  }
+class A { }
 
-  class B {
-    constructor(value) {
-      this.value = value
-    }
-  }
+class B { }
 
+test('Matches on type', t => {
+  patroon(
+    typed(B), () => t.fail(),
+    typed(A), () => t.end()
+  )(new A())
+})
+
+test('Matches on type and values assigned to that type', t => {
   patroon(
     typed(B, {value: 20}), () => t.fail(),
     typed(A, {value: 30}), () => t.fail(),
     typed(A, {value: 20}), () => t.end()
-  )(new A(20))
+  )(Object.assign(new A(), {value: 20}))
+})
+
+test('Matches only when property exists', t => {
+  patroon(
+    {c: _}, () => t.fail(), // c is not defined
+    {a: _}, () => t.end(),
+  )({a: undefined})
 })
 
 test('Matches using an array pattern', t => {

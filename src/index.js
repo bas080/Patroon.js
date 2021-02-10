@@ -33,8 +33,7 @@ function patroon(...list) {
 
 function typed(constructor, matchObject) {
   function typed(v) {
-    console.log(v)
-    return v instanceof constructor && matches(matchObject, v)
+    return v instanceof constructor && matches(matchObject || {}, v)
   }
 
   typed[typedSymbol] = true
