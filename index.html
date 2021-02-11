@@ -71,12 +71,12 @@ const otherObject = {b: 1}
 const emptyObject = {}
 
 class A { }
-
 class B { }
 
 test('Matches on type', t =&gt; {
   patroon(
     typed(B), () =&gt; t.fail(),
+    typed(A, {a: _}), () =&gt; t.fail(),
     typed(A), () =&gt; t.end()
   )(new A())
 })
@@ -104,8 +104,7 @@ test('Matches using an array pattern', t =&gt; {
 })
 
 test('Matches always when pattern equals value', check(gen.any, (t, val) =&gt; {
-  patroon(val, () =&gt; t.pass('matches'))(val)
-  t.end()
+  patroon(val, () =&gt; t.end())(val)
 }));
 
 test('Matches the first pattern', t =&gt; {
