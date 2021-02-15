@@ -23,6 +23,42 @@ test('Matches on type', t => {
   )(new A())
 })
 
+test('Does not match on array that is too short', t => {
+  patroon(
+    [_, _], () => t.pass(),
+    [_], () => t.fail(),
+    [], () => t.fail(),
+  )([1,2])
+
+  patroon(
+    [_, _], () => t.fail(),
+    [_], () => t.pass(),
+    [], () => t.fail(),
+  )([1])
+
+  patroon(
+    [_, _], () => t.fail(),
+    [_], () => t.fail(),
+    [], () => t.pass(),
+  )([])
+
+  t.end()
+})
+
+test('Implement toPairs function using patroon', t => {
+  const toPairs = patroon(
+    [_, _], ([a, b, ...c], p) => toPairs(c, [...(p||[]) , [a, b]]),
+    [_], (_, p=[]) => p, // Drop the odd one out.
+    [], (a, p=[]) => p
+  )
+
+  t.deepEquals(toPairs([1]), [])
+  t.deepEquals(toPairs([1,2]), [[1,2]])
+  t.deepEquals(toPairs([1,2,3]), [[1,2]])
+  t.deepEquals(toPairs([1,2,3,4]), [[1,2], [3,4]])
+  t.end()
+})
+
 test('Matches on type and values assigned to that type', t => {
   patroon(
     typed(B, {value: 20}), () => t.fail(),

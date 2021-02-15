@@ -81,6 +81,42 @@ test('Matches on type', t =&gt; {
   )(new A())
 })
 
+test('Does not match on array that is too short', t =&gt; {
+  patroon(
+    [_, _], () =&gt; t.pass(),
+    [_], () =&gt; t.fail(),
+    [], () =&gt; t.fail(),
+  )([1,2])
+
+  patroon(
+    [_, _], () =&gt; t.fail(),
+    [_], () =&gt; t.pass(),
+    [], () =&gt; t.fail(),
+  )([1])
+
+  patroon(
+    [_, _], () =&gt; t.fail(),
+    [_], () =&gt; t.fail(),
+    [], () =&gt; t.pass(),
+  )([])
+
+  t.end()
+})
+
+test('Implement toPairs function using patroon', t =&gt; {
+  const toPairs = patroon(
+    [_, _], ([a, b, ...c], p) =&gt; toPairs(c, [...(p||[]) , [a, b]]),
+    [_], (_, p=[]) =&gt; p, // Drop the odd one out.
+    [], (a, p=[]) =&gt; p
+  )
+
+  t.deepEquals(toPairs([1]), [])
+  t.deepEquals(toPairs([1,2]), [[1,2]])
+  t.deepEquals(toPairs([1,2,3]), [[1,2]])
+  t.deepEquals(toPairs([1,2,3,4]), [[1,2], [3,4]])
+  t.end()
+})
+
 test('Matches on type and values assigned to that type', t =&gt; {
   patroon(
     typed(B, {value: 20}), () =&gt; t.fail(),
@@ -183,13 +219,13 @@ module.exports = Object.assign(patroon, {
 
 function patroon(...list) {
   const pairs = toPairs(list)
-  return function (value) {
+  return function (value, ...rest) {
     const [_, fn] = pairs.find(([pattern, fn]) =&gt; matches(pattern, value)) ||
       [null, v =&gt; {
         // console.error('\n', v, '\n')
         throw new NoMatchError()
       }]
-    return fn(value)
+    return fn(value, ...rest)
   }
 }
 
@@ -213,7 +249,8 @@ function matches(a, b) {
   }
 
   if (Array.isArray(a)) {
-    return Object.keys(a).every(key =&gt; matches(a[key], b[key]))
+    return b &amp;&amp; b.length &gt;= a.length &amp;&amp;
+      Object.keys(a).every(key =&gt; matches(a[key], b[key]))
   }
 
   if (typeof a === 'object' &amp;&amp; a !== null) {

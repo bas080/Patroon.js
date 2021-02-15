@@ -21,13 +21,13 @@ module.exports = Object.assign(patroon, {
 
 function patroon(...list) {
   const pairs = toPairs(list)
-  return function (value) {
+  return function (value, ...rest) {
     const [_, fn] = pairs.find(([pattern, fn]) => matches(pattern, value)) ||
       [null, v => {
         // console.error('\n', v, '\n')
         throw new NoMatchError()
       }]
-    return fn(value)
+    return fn(value, ...rest)
   }
 }
 
@@ -51,7 +51,8 @@ function matches(a, b) {
   }
 
   if (Array.isArray(a)) {
-    return Object.keys(a).every(key => matches(a[key], b[key]))
+    return b && b.length >= a.length &&
+      Object.keys(a).every(key => matches(a[key], b[key]))
   }
 
   if (typeof a === 'object' && a !== null) {
