@@ -163,7 +163,8 @@ function matches(a, b) {
   }
 
   if (Array.isArray(a)) {
-    return Object.keys(a).every(key => matches(a[key], b[key]))
+    return b && b.length >= a.length &&
+      Object.keys(a).every(key => matches(a[key], b[key]))
   }
 
   if (typeof a === 'object' && a !== null) {
