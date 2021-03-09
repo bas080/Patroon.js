@@ -48,8 +48,7 @@ test('Does not match on array that is too short', t => {
 test('Implement toPairs function using patroon', t => {
   const toPairs = patroon(
     [_, _], ([a, b, ...c], p=[]) => toPairs(c, [...p , [a, b]]),
-    [_], (_, p=[]) => p, // Drop the odd one out.
-    [], (a, p=[]) => p
+    _, (_, p=[]) => p,
   )
 
   t.deepEquals(toPairs([1]), [])
