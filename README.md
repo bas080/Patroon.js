@@ -13,7 +13,7 @@ The Patroon project uses [literate programming][3].
 Make sure to understand and setup the ["Literate"][2] tool before contributing.
 
 The source code should be edited using the `index.lit` file. Run `npm t` to
-test the changes. This compiles the source code and runs the tape tests.
+test the changes. This "weaves" the source code and runs the tape tests.
 
 [1]:https://bas080.github.io/Patroon.js/
 [2]:https://github.com/zyedidia/Literate
